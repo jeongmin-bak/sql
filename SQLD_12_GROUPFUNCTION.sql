@@ -1,0 +1,154 @@
+/*
+ * 섹션11. 집합 연산
+ * 
+ * 선수 지식: GROUP BY
+ */
+
+-- GROUPING SETS -> GROUP BY와 UNION으로 바꿀 수 있
+SELECT a,b, NUM
+FROM SALES;
+
+SELECT a, SUM(NUM)
+FROM SALES 
+GROUP BY a;
+
+SELECT b, SUM(NUM)
+FROM SALES 
+GROUP BY b;
+
+SELECT a, b, SUM(NUM)
+FROM SALES
+GROUP BY GROUPING SETS (a,b)
+ORDER BY 1,2,3;
+
+SELECT a, b, c, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS (a, b, c)
+ORDER BY 1,2,3;
+
+SELECT a, b, c, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS (a,(b,c))
+ORDER BY 1,2,3;
+
+SELECT NULL, B, C, SUM(NUM)
+FROM SALES 
+GROUP BY B,C
+UNION ALL
+SELECT A, NULL, NULL, SUM(NUM)
+FROM SALES 
+GROUP BY A 
+ORDER BY 1,2,3;
+
+--------------------------------------------------------------
+
+-- ROLLUP
+SELECT A, B, SUM(NUM)
+FROM SALES 
+GROUP BY ROLLUP(A,B)
+ORDER BY 1,2,3;
+
+SELECT A,B, SUM(NUM)
+FROM SALES
+GROUP BY A,B
+UNION ALL
+SELECT A, NULL, SUM(NUM)
+FROM SALES 
+GROUP BY A
+UNION ALL 
+SELECT NULL, NULL, SUM(NUM)
+FROM SALES;
+
+SELECT A, B, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS((a,b), a,())
+ORDER BY 1,2,3;
+
+--------------------------------------------------------------
+
+-- CUBE 
+
+SELECT A, B, SUM(NUM)
+FROM SALES
+GROUP BY CUBE(A, B)
+ORDER BY 1,2,3;
+
+SELECT A, B, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS((a,b), a, b, ())
+ORDER BY 1,2,3;
+
+SELECT A, B, SUM(NUM)
+FROM SALES 
+GROUP BY A, B
+UNION ALL 
+SELECT A, NULL, SUM(NUM)
+FROM SALES 
+GROUP BY A 
+UNION ALL 
+SELECT NULL, B, SUM(NUM)
+FROM SALES 
+GROUP BY B 
+UNION ALL 
+SELECT NULL, NULL, SUM(NUM)
+FROM SALES
+ORDER BY 1,2,3;
+
+--
+
+SELECT a, b, c, d, SUM(NUM)
+FROM SALES
+GROUP BY CUBE(a,b,c,d)
+ORDER BY 1,2,3;
+
+SELECT a,b,c,d, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS((a,b,c,d), (a,b,c), (a,b,d), (a,c,d), (b,c,d), (a,b), (a,c), (a,d), (b,c), (b,d), (c,d), a,b,c,d,())
+ORDER BY 1,2,3
+
+-- 
+
+SELECT a, b, c, d, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS (a, ROLLUP(b,c), d)
+ORDER BY 1,2,3,4;
+
+SELECT a, b, c, d, SUM(NUM)
+FROM SALES 
+GROUP BY GROUPING SETS (a, (b,c), (b), (), d)
+ORDER BY 1,2,3,4;
+
+--
+SELECT a, b, c, d, sum(num)
+FROM sales
+GROUP BY GROUPING SETS (a, CUBE(b), c, d)
+ORDER BY 1, 2, 3, 4;
+
+SELECT a, b, c, d, sum(num)
+FROM sales
+GROUP BY GROUPING SETS (a, b, (), c, d)
+ORDER BY 1, 2, 3, 4;
+
+--
+
+SELECT a, b, c, d, sum(num)
+FROM sales
+GROUP BY GROUPING SETS (a, rollup(b, c, d))
+ORDER BY 1, 2, 3, 4;
+
+SELECT a, b, c, d, sum(num)
+FROM sales
+GROUP BY GROUPING SETS (a, (b,c,d), (b,c), d, ())
+ORDER BY 1, 2, 3, 4;
+
+---- GROUPING NULL일때 1이고 NULL이 아닐때 0 
+SELECT 
+	a, b,
+	CASE GROUPING(a) WHEN 0 THEN a ELSE 'all a' END AS a ,
+	CASE GROUPING(b) WHEN 0 THEN b ELSE 'all b' END AS b 
+FROM sales 
+GROUP BY ROLLUP(a,b)
+
+
+
+
