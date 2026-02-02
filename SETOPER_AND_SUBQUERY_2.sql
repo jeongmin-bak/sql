@@ -1,0 +1,74 @@
+-- 서브쿼리 사용하기 2
+
+SELECT table_name
+FROM user_tables;
+
+-- 73 
+SELECT ENAME 
+FROM EMP 
+WHERE EMPNO IN ( SELECT MGR FROM emp);
+
+SELECT ENAME 
+FROM EMP 
+WHERE EMPNO NOT IN ( SELECT MGR FROM emp WHERE MGR IS NOT NULL);
+
+-- 74 
+SELECT *
+FROM DEPT 
+WHERE EXISTS ( SELECT * 
+				 FROM EMP 
+				 WHERE emp.DEPTNO = dept.DEPTNO 
+);
+
+SELECT *
+FROM DEPT 
+WHERE NOT EXISTS ( SELECT * 
+				 FROM EMP 
+				 WHERE emp.DEPTNO = dept.DEPTNO 
+);
+
+-- 75 
+SELECT e.JOB, SUM(SAL)
+FROM emp e
+GROUP BY e.JOB 
+HAVING SUM(SAL) > (SELECT SUM(SAL) 
+				   FROM EMP e 
+				   WHERE e.JOB = 'SALESMAN'
+);
+
+-- COUNT(*) : 행(row) 수를 센다. (NULL 여부와 무관)
+-- COUNT(deptno) : deptno가 NULL이 아닌 행 수만 센다.
+SELECT e.DEPTNO, COUNT(*)
+FROM EMP e
+GROUP BY e.DEPTNO 
+HAVING COUNT(e.DEPTNO) > (SELECT COUNT(*) 
+							 FROM EMP e 
+						    WHERE e.DEPTNO= 10);
+
+-- 76 
+SELECT *
+FROM (
+	SELECT ENAME, SAL, RANK() OVER (ORDER BY SAL DESC) AS "순위"
+	FROM emp
+	)
+WHERE ROWNUM < 2;
+
+
+5. SELECT 서브쿼리 
+1. FROM 서브쿼리  
+2. WHERE 서브쿼리 
+3. GROUP BY X 
+4. HAVING 서브쿼리
+6. ORDER BY 서브쿼리 
+
+
+-- 77
+SELECT ENAME, SAL,
+	(SELECT MAX(SAL)
+	FROM EMP
+	WHERE JOB = 'SALESMAN') AS "최대월급",
+	(SELECT MIN(SAL)
+	FROM EMP
+	WHERE JOB = 'SALESMAN') AS "최소월"
+FROM EMP 
+WHERE JOB = 'SALESMAN'
